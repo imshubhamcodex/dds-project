@@ -11,12 +11,12 @@ writer = dds.DataWriter(publisher, topic)
 
 # Sensor data 
 emergency_status_values = [
-    "ALERT", "ALERT", "ALERT", "ALERT",
-    "NORMAL", "NORMAL", "NORMAL", "NORMAL",      
-    "NORMAL", "NORMAL", "NORMAL", "NORMAL",      
-    "NORMAL", "NORMAL", "NORMAL" ,"NORMAL",       
-    "NORMAL", "NORMAL", "NORMAL" , "NORMAL",
-    "NORMAL", "NORMAL", "NORMAL" , "NORMAL" 
+    "ALERT", "ALERT", "ALERT", "ALERT", "ALERT", "ALERT",
+    "NORMAL", "NORMAL", "NORMAL", "NORMAL","NORMAL", "NORMAL",
+    "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL",
+    "NORMAL", "NORMAL", "NORMAL" ,"NORMAL","NORMAL", "NORMAL",
+    "NORMAL", "NORMAL", "NORMAL" , "NORMAL","NORMAL", "NORMAL",
+    "NORMAL", "NORMAL", "NORMAL" , "NORMAL","NORMAL", "NORMAL"
 ]
 
 msg_counter = 0
@@ -25,4 +25,4 @@ while True:
     msg_counter += 1
     writer.write(message)
     print(f"{msg_counter}. emergency_status published: {message.content}")
-    sleep(1)
+    sleep(2)

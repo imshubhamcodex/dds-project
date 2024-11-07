@@ -21,4 +21,4 @@ while True:
         data = sample.data
         print(f"{msg_counter}. Received Command: {data.content}")
         upload_data()
-    sleep(1)
+    sleep(0.4)

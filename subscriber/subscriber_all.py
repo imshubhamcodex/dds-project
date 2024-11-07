@@ -50,7 +50,7 @@ while True:
     if has_new_samples:
         print(" ")
         
-    sleep(1.2) 
+    sleep(2.2) 
     
     
     
