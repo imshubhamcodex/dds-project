@@ -2,6 +2,7 @@ from config import dds_config
 from datetime import datetime
 import rti.connextdds as dds
 import json
+from config.firebase_firestore_config import is_mode_MANUAL
 
 participant = dds_config.create_participant()
 publisher = dds.Publisher(participant)
@@ -24,11 +25,14 @@ def send_command(data_collection, action_type, door_open_height, action_remark):
     data_collection['timestamp'] = datetime.now().strftime("%d:%m:%Y %H:%M:%S")
     data_collection_list.append(data_collection)
     
-    # Dump data to JSON and publish
-    data_dumping(data_collection_list, "publishers-actuation-data.json")
-    message = dds_config.StringWrapper(content=f"{action_type}-{door_open_height}-{action_remark}")
-    writer.write(message)
-    print("Analytics Published")
+    if not is_mode_MANUAL():
+        data_dumping(data_collection_list, "publishers-actuation-data.json")
+        message = dds_config.StringWrapper(content=f"{action_type}-{door_open_height}-{action_remark}")
+        writer.write(message)
+        print("Analytics Published")
+    else:
+        print("MODE MANUAL")
+        print("Data Not Uploaded")
 
 def data_dumping(data, file_name):
     with open("./data/" + file_name, "w") as file:
