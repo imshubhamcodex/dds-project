@@ -19,7 +19,6 @@ fo_height_values = [
     21.0, 21.5, 22.0, 21,2, 21.5, 22.0, 21,2      
 ]
 
-
 msg_counter = 0
 while True: 
     message = dds_config.FloatWrapper(value=fo_height_values[msg_counter % len(fo_height_values)]) 

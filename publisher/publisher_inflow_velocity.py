@@ -19,8 +19,6 @@ inflow_velocity_values = [
     9.3, 9.5, 8.3, 8.8
 ]
 
-
-
 msg_counter = 0
 while True:
     message = dds_config.FloatWrapper(value=inflow_velocity_values[msg_counter % len(inflow_velocity_values)])

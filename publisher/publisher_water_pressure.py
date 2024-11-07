@@ -8,6 +8,7 @@ publisher = dds.Publisher(participant)
 # Create a topic and DataWriter for `water_pressure`
 topic = dds.Topic(participant, "water_pressure", dds_config.FloatWrapper)
 writer = dds.DataWriter(publisher, topic)
+
 # Sensor data
 water_pressure_values = [
     70.0, 72.0, 74.0, 73.2,     

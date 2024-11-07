@@ -12,7 +12,6 @@ class StringWrapper:
 
 governance_file = "./governance.xml"
 
-# Create a secure domain participant
 def create_participant(domain_id=0):
     security_qos = dds.DomainParticipantQos()
     security_qos << dds.Property(

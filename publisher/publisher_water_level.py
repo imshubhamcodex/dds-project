@@ -9,7 +9,6 @@ publisher = dds.Publisher(participant)
 topic = dds.Topic(participant, "water_level", dds_config.FloatWrapper)
 writer = dds.DataWriter(publisher, topic)
 
-
 # Sensor data
 water_level_values = [
     90.0, 95.0, 99.0, 99.9,

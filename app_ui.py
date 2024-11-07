@@ -1,7 +1,6 @@
 from taipy import Gui
 import plotly.graph_objects as go
-from db.firebase_firestore import fetch_data
-from time import sleep
+from config.firebase_firestore_config import fetch_data
 
 data = fetch_data()
 door_open_height = data.get('By %')

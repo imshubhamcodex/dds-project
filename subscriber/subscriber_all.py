@@ -19,7 +19,7 @@ topics = {
 
 subscriber = dds.Subscriber(participant)
 
-# Create a DataReader for each topic and store them in a dictionary
+# Create a DataReader for each topic
 readers = {}
 for topic_name, topic_type in topics.items():
     topic = dds.Topic(participant, topic_name, topic_type)

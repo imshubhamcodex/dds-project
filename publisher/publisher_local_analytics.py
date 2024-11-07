@@ -21,19 +21,23 @@ def send_command(data_collection, action_type, adjustment_percentage, action_rem
         action_type = "CLOSE"
         adjustment_percentage = 100
     
+    # Adding action fields
     data_collection['action_type'] = action_type
     data_collection['adjustment_percentage'] = adjustment_percentage
     data_collection['action_remark'] = action_remark
     data_collection['timestamp'] = datetime.now().strftime("%d:%m:%Y %H:%M:%S")
     data_collection_list.append(data_collection)
     
-    data_dumping(data_collection_list, "publishers-actuation-data")
+    data_dumping(data_collection_list, "publishers-actuation-data.json")
     message = dds_config.StringWrapper(content=f"{action_type}-{adjustment_percentage}-{action_remark}")
     writer.write(message)
+    print("Analytics Published")
+
 
 def data_dumping(data, file_name):
     with open("./data/" + file_name, "w") as file:
         json.dump(data, file)
+
 
 # Perform analytics
 def perform_analytics(data_collection):

@@ -19,7 +19,6 @@ fo_width_values = [
     14.0, 13.5, 13.0, 14.4,
 ]
 
-
 msg_counter = 0
 while True:
     message = dds_config.FloatWrapper(value=fo_width_values[msg_counter % len(fo_width_values)])

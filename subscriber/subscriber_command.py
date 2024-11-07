@@ -2,7 +2,7 @@
 from config import dds_config
 import rti.connextdds as dds
 from time import sleep
-from db.firebase_firestore import upload_data
+from config.firebase_firestore_config import upload_data
 
 participant = dds_config.create_participant()
 topic = dds.Topic(participant, "actuation_command", dds_config.StringWrapper)
