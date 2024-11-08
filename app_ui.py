@@ -19,9 +19,10 @@ page = """
 
 <|chart|figure={fig}|>
 <br />
+<br />
 
-## Mode Selection 
-<|layout|columns=1 1 1 1 1|
+## Mode Selection
+<|layout|columns=1 1 1 1|
 <|{mode_value}|selector|lov=MANUAL;AUTO;|dropdown|label=Mode|on_change=mode_toggle|>
 
 <|part|render={show_ele}
@@ -32,9 +33,8 @@ page = """
 <|{door_height}|selector|lov=0;10;20;30;40;50;60;70;80;90;100;|dropdown|label=Door Height(%)|>
 |>
 
-# 
 <|part|render={show_ele}
-<|execute|button|on_action=on_execute|>
+<|execute|button|on_action=on_execute|id=exe-btn|>
 |>
 |>
 
@@ -51,8 +51,6 @@ def mode_toggle(state):
         set_mode(state.mode_value)
         on_refresh(state)
         
-        
-    
 def on_refresh(state):
     new_data = fetch_data()
     state.data = new_data
