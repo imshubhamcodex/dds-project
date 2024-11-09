@@ -90,7 +90,7 @@ def perform_analytics(data_collection):
         else:
             action_type = "NONE"
             action_remark = "No Change Requried"
-        
+            
         send_command(data_collection, action_type, door_open_height, action_remark)
         previous_command = current_command
         current_door_height = door_open_height
@@ -98,5 +98,6 @@ def perform_analytics(data_collection):
         if action_remark != None: # Eliminating initial condition
             action_type = "NONE"
             action_remark = "No Change Requried"
+            
             send_command(data_collection, action_type, door_open_height, action_remark)
             previous_command = current_command

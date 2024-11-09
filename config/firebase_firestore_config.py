@@ -91,6 +91,9 @@ def fetch_data():
             "Door Height(%)": [],
             "Remarks": []
         }
+        
+        if len(data) == 0:
+            return formatted_data
 
         # Populate the formatted data structure
         for entry in data['entries']:
@@ -103,7 +106,7 @@ def fetch_data():
             formatted_data["Emergency Status"].append(entry.get('emergency_status', ''))
             formatted_data["Remarks"].append(entry.get('action_remark', ''))
             formatted_data["Action"].append(entry.get('action_type', ''))
-            formatted_data["Door Height(%)"].append(entry.get('door_open_height', ''))
+            formatted_data["Door Height(%)"].append(float(entry.get('door_open_height', '')))
 
             
         return formatted_data
