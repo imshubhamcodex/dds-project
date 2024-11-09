@@ -29,7 +29,7 @@ def send_command(data_collection, action_type, door_open_height, action_remark):
         data_dumping(data_collection_list, "publishers-actuation-data.json")
         message = dds_config.StringWrapper(content=f"{action_type}-{door_open_height}-{action_remark}")
         writer.write(message)
-        print("Analytics Published")
+        print("New Analytics Published")
     else:
         print("MODE MANUAL")
         print("Data Not Uploaded")
@@ -42,12 +42,12 @@ def data_dumping(data, file_name):
 def perform_analytics(data_collection):
     global previous_command
     
-    if not data_collection:
+    if not data_collection or len(data_collection.keys()) < 6:
         return
     
     # Default action details
-    action_type = "CLOSE"
     door_open_height = 0
+    current_door_height = 0
     action_remark = None
 
     # Thresholds for individual conditions
@@ -60,38 +60,43 @@ def perform_analytics(data_collection):
 
     # Determine action based on conditions
     if data_collection.get("emergency_status") == EMERGENCY_STATUS_ALERT:
-        action_type = "OPEN"
         door_open_height = 100
-        action_remark = "Emergency detected!"
+        action_remark = "Emergency Detected!"
     elif data_collection.get("water_level", 0) > WATER_LEVEL_THRESHOLD:
-        action_type = "OPEN"
         door_open_height = 75
-        action_remark = "High water level detected."
+        action_remark = "High Water Level Detected."
     elif data_collection.get("water_pressure", 0) > WATER_PRESSURE_THRESHOLD:
-        action_type = "OPEN"
         door_open_height = 50
-        action_remark = "High water pressure detected."
+        action_remark = "High Water Pressure Detected."
     elif data_collection.get("fo_height", 0) > FO_HEIGHT_THRESHOLD:
-        action_type = "CLOSE"
         door_open_height = 0
-        action_remark = "Long height floating object detected."
+        action_remark = "Long Height Floating Object Detected."
     elif data_collection.get("fo_width", 0) > FO_WIDTH_THRESHOLD:
-        action_type = "CLOSE"
         door_open_height = 0
-        action_remark = "Large width floating object detected."
+        action_remark = "Large Width Floating Object Detected."
     elif data_collection.get("inflow_velocity", 0) > INFLOW_VELOCITY_THRESHOLD:
-        action_type = "OPEN"
         door_open_height = 25
-        action_remark = "High inflow velocity detected."
+        action_remark = "High Inflow Velocity Detected."
 
     # Build current command and compare to previous command
-    current_command = f"{action_type}-{door_open_height}-{action_remark}"
+    current_command = f"{door_open_height}-{action_remark}"
     
     # Check if current command differs from the previous command
     if current_command != previous_command and action_remark != None:
+        if current_door_height > door_open_height:
+            action_type = "CLOSE"
+        elif current_door_height < door_open_height:
+            action_type = "OPEN"
+        else:
+            action_type = "NONE"
+            action_remark = "No Change Requried"
+        
         send_command(data_collection, action_type, door_open_height, action_remark)
         previous_command = current_command
+        current_door_height = door_open_height
     else:
-        if action_remark != None:
-            send_command(data_collection, "NONE", door_open_height, "Already set")
+        if action_remark != None: # Eliminating initial condition
+            action_type = "NONE"
+            action_remark = "No Change Requried"
+            send_command(data_collection, action_type, door_open_height, action_remark)
             previous_command = current_command

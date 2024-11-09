@@ -19,6 +19,6 @@ while True:
         print(f"{msg_counter}. No Command received")
     for sample in samples:
         data = sample.data
-        print(f"{msg_counter}. Received Command: {data.content}")
+        print(f"{msg_counter}. Received Command for Actuation: {data.content}")
         upload_data()
     sleep(0.4)
