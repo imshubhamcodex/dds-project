@@ -3,6 +3,7 @@ import rti.connextdds as dds
 from publisher.publisher_local_analytics  import perform_analytics
 from config import dds_config   
 from time import sleep
+from datetime import datetime
 
 participant = dds_config.create_participant()
 
@@ -29,14 +30,13 @@ for topic_name, topic_type in topics.items():
 msg_counter = 0
 while True:
     data_collection = {}
-    has_new_samples = False
     for topic_name, reader in readers.items():
         samples = reader.take()
         if not samples:
-            print("No data received from publishers!") 
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{timestamp}] Identity: Central Data Reader | Reads: All Sensor Data | Location: Control Room | Status: Waiting For Data |")
             continue
         
-        has_new_samples = True
         msg_counter += 1 
         for sample in samples:
             data = sample.data
@@ -46,16 +46,10 @@ while True:
                 data_collection[topic_name] = data.content
             
     # Invoking analytics with current data
+    print(" ")
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{timestamp}] Identity: Central Data Reader | Performs: Data Collection | Location: Control Room | Status: Data Received | Action: Forwarded For Analysis |")
     perform_analytics(data_collection)
-    if has_new_samples:
-        print(" ")
-        
+  
     sleep(2.2) 
     
-    
-    
-    
-    
-    
-
-

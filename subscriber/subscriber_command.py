@@ -2,6 +2,7 @@
 from config import dds_config
 import rti.connextdds as dds
 from time import sleep
+from datetime import datetime
 from config.firebase_firestore_config import upload_data
 
 participant = dds_config.create_participant()
@@ -16,9 +17,15 @@ while True:
     msg_counter += 1
     
     if len(samples) == 0:
-        print(f"{msg_counter}. No Command received")
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{timestamp}] Identity: Actuation Controller | Location: Across Reservoir | Status: Waiting For Instruction | Action: None |")
+         
     for sample in samples:
         data = sample.data
-        print(f"{msg_counter}. Received Command for Actuation: {data.content}")
+        action = data.content.split("-")[0] + " Height(meters) "+ data.content.split("-")[1] 
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(" ")
+        print(f"[{timestamp}] Identity: Actuation Controller | Location: Across Reservoir | Status: Instruction Received | Action: {action} |")
+        print(" ")
         upload_data()
     sleep(0.4)

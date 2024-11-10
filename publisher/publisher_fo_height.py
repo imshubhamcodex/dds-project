@@ -1,6 +1,7 @@
 from config import dds_config
 import rti.connextdds as dds
 from time import sleep
+from datetime import datetime
 
 participant = dds_config.create_participant()
 publisher = dds.Publisher(participant)
@@ -24,5 +25,8 @@ while True:
     message = dds_config.FloatWrapper(value=fo_height_values[msg_counter % len(fo_height_values)]) 
     msg_counter += 1 
     writer.write(message)
-    print(f"{msg_counter}. fo_height published: {message.value}")
+    # print(f"{msg_counter}. fo_height published: {message.value}")
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{timestamp}] Sensor: LIDAR | Reads: Floating Object Height | Location: Reservoir Surface | Value: {message.value} meters | Status: Live |")
+    
     sleep(2)

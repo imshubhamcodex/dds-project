@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from time import sleep
 import json
+from datetime import datetime
 
 cred = credentials.Certificate("db_private_key.json")
 firebase_admin.initialize_app(cred)
@@ -24,9 +25,14 @@ def update_manual_data(manual_data):
             data = doc.to_dict()
             data['entries'].append(manual_data)
             doc_ref.set(data) 
-            print("Manual data set")
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{timestamp}] Identity: Firebase | Perform: Upload MANUAL Data | Status: Data Uploaded |")
+         
         else:
-            print("No data found in DB")   
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{timestamp}] Identity: Firebase | Perform: Upload MANUAL Data | Status: No Data Found in DB | Action: Creating Field in DB |")
+            doc_data = {"entries": manual_data}
+            doc_ref.set(doc_data)
     
 
 def get_unique_local_data(local_data, db_data):
@@ -51,9 +57,13 @@ def upload_data():
                 if local_data:
                     doc_data = {"entries": db_data + new_obj_arr}
                     doc_ref.set(doc_data)
-                    print("Data uploaded")
+                    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    print(f"[{timestamp}] Identity: Firebase | Perform: Data Upload | Status: Data Uploaded |")
+                    print(" ")
         except json.JSONDecodeError:
-                print("JSON file fetch Error")
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print(f"[{timestamp}] Identity: Firebase | Perform: Local Data Fetch | Status: JSON Fetch Error | Action: Retrying |")
+                print(" ")
                 sleep(0.5)
                 upload_data()
     else:
@@ -67,30 +77,35 @@ def upload_local_data():
             if local_data:
                 doc_data = {"entries": local_data}
                 doc_ref.set(doc_data)
-                print("Local Data uploaded")
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print(f"[{timestamp}] Identity: Firebase | Perform: Local Data Upload | Status: Data Uploaded |")
+                print(" ")
     except json.JSONDecodeError:
-            print("JSON file fetch Error")
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{timestamp}] Identity: Firebase | Perform: Local Data Fetch | Status: JSON Fetch Error | Action: Retrying |")
+         
             sleep(0.5)
             upload_local_data()
     
 
 def fetch_data():
+    formatted_data = {
+        "Date Time": [],
+        "Water Level(m)": [],
+        "Water Pressure(Pa)": [],
+        "Inflow Velocity(m/s)": [],
+        "FO Height(m)": [],
+        "FO Width(m)": [],
+        "Emergency Status": [],
+        "Action": [],
+        "Door Height(%)": [],
+        "Remarks": []
+    }
+    
     doc = doc_ref.get()
+    
     if doc.exists:
         data = doc.to_dict()
-
-        formatted_data = {
-            "Date Time": [],
-            "Water Level(m)": [],
-            "Water Pressure(Pa)": [],
-            "Inflow Velocity(m/s)": [],
-            "FO Height(m)": [],
-            "FO Width(m)": [],
-            "Emergency Status": [],
-            "Action": [],
-            "Door Height(%)": [],
-            "Remarks": []
-        }
         
         if len(data) == 0:
             return formatted_data
@@ -108,9 +123,14 @@ def fetch_data():
             formatted_data["Action"].append(entry.get('action_type', ''))
             formatted_data["Door Height(%)"].append(float(entry.get('door_open_height', '')))
 
-            
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{timestamp}] Identity: Firebase | Perform: Data Fetch | Status: Data Fetched |")
+        print(" ")
+        
         return formatted_data
     
     else:
-        print("No such document!")   
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{timestamp}] Identity: Firebase | Perform: DB Data Fetch | Status: Data Not Found | Action: Returning [] |")
+        return formatted_data 
 
