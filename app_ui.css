@@ -1,6 +1,10 @@
 #exe-btn{
     width: 200%;
 }
+#text_msg{
+    color:red;
+    font-size: 12px;
+}
 #nav-bar{
     display: block;
     text-align: center;

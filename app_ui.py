@@ -7,7 +7,10 @@ from config.firebase_firestore_config import fetch_data, set_mode, update_manual
 mode_value = "AUTO"
 action_type = "OPEN"
 door_height = 0
-show_ele = True 
+show_ele = True
+show_door_height = False
+active_btn = False 
+input_val_msg =""
 
 
 def get_table_data(data):
@@ -69,13 +72,14 @@ page_3 = """
 #
 <|layout|
 <|part|
-<|{mode_value}|selector|lov=MANUAL;AUTO;|dropdown|label=Mode|on_change=mode_toggle|>
+<|{mode_value}|selector|lov=MANUAL;AUTO;|dropdown|label=Operation Mode|on_change=mode_toggle|>
 |>
 <|part|render={show_ele}
-<|{door_height}|selector|lov=0;10;20;30;40;50;60;70;80;90;100;|dropdown|label=Door Height(%)|>
+<|{door_height}|input|label=Door Height(%)|active={show_door_height}|on_change=validate_input|>
+<|{input_val_msg}|text|id=text_msg|>
 |>
 <|part|render={show_ele}
-<|execute|button|on_action=on_execute|id=exe-btn|>
+<|execute|button|on_action=execute|id=exe-btn|active={active_btn}|>
 |>
 |>
 #
@@ -83,17 +87,40 @@ page_3 = """
 """
 
 
+# Global on_navigate
+def on_navigate(state, page_name):
+    page_refresh(state)
+    return page_name
 
-def mode_toggle(state):
-    print("Mode Changed To: ", state.mode_value)
+# Local on_change
+def validate_input(state, id):
+    input_door_height = str(state.door_height)
+    try:
+        height = float(input_door_height)
+        if height < 0 or height > 100:
+            state.input_val_msg = "Must in between 0 and 100."
+            state.active_btn = False
+        else:
+            state.input_val_msg = ""
+            state.active_btn = True
+    except ValueError:
+        state.input_val_msg = "Must be a numeric value."
+        state.active_btn = False
 
-    # if state.mode_value == "MANUAL":
-    #     state.show_ele = True
-    # else:
-    #     state.show_ele = False
-    #     on_refresh(state)
-        
-def on_refresh(state):
+# Local on_change
+def mode_toggle(state, id):
+    if state.mode_value == "MANUAL":
+        state.show_door_height = True
+        state.active_btn = True
+    else:
+        state.show_door_height = False
+        state.door_height = 0
+        state.active_btn = False
+        execute(state, id)
+
+
+# Utility function        
+def page_refresh(state):
     new_data = fetch_data()
     state.data = new_data
     state.table_data = get_table_data(new_data)
@@ -101,9 +128,14 @@ def on_refresh(state):
     state.timestamp = new_data.get('Date Time')
     state.fig = go.Figure(data=go.Scatter(y=state.door_open_height, x=state.timestamp)).update_layout(title="Door Open Height vs Time", yaxis_title="Door Open Height (%)")
 
-def on_execute(state):
+
+# Local on_action
+def execute(state, id):
     set_mode(state.mode_value)
-    on_refresh(state)
+    page_refresh(state)
+    
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{timestamp}] Identity: Taipy | Mode Set To: {state.mode_value} |")
     
     if state.mode_value == "MANUAL":
         if float(state.table_data.get('Door Height(%)')[0]) > float(state.door_height):
@@ -115,10 +147,12 @@ def on_execute(state):
             state.door_height = 0
             
         data = {"water_level": "-", "water_pressure": "-", "fo_height": "-", "fo_width": "-", "inflow_velocity": "-", "emergency_status": "-", "action_type": state.action_type, "door_open_height": state.door_height, "action_remark": "MANUAL", "timestamp": datetime.now().strftime("%d:%m:%Y %H:%M:%S")}
+        print(f"[{timestamp}] Identity: Taipy | Door Height Set To: {state.door_height} |")
+        
         update_manual_data(data)    
-        on_refresh(state)
+        page_refresh(state)
     else:
-        on_refresh(state)
+        page_refresh(state)
     
     
 pages = {

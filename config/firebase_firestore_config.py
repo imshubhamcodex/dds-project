@@ -124,6 +124,7 @@ def fetch_data():
             formatted_data["Door Height(%)"].append(float(entry.get('door_open_height', '')))
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(" ")
         print(f"[{timestamp}] Identity: Firebase | Perform: Data Fetch | Status: Data Fetched |")
         print(" ")
         
