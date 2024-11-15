@@ -2,3 +2,4 @@
 # pip install taipy
 # pip install firebase-admin
 # pip install plotly
+# pip install python-dotenv
