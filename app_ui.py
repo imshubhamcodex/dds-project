@@ -2,8 +2,15 @@ from taipy import Gui
 from datetime import datetime
 import plotly.graph_objects as go
 from config.firebase_firestore_config import fetch_data, set_mode, update_manual_data
+from dotenv import load_dotenv
+import os
 
+# Dialog state vars
+dialog_is_visible = True
+passcode = None
+verified_user = False
 
+# Control state vars
 mode_value = "AUTO"
 action_type = "OPEN"
 door_height = 0
@@ -12,7 +19,14 @@ show_door_height = False
 active_btn = False 
 input_val_msg =""
 
+# Chart and Table vars
+chart_fig = None
+table_data = None
+door_open_height = None
+timestamp = None
+data = None
 
+# Table data manipulation
 def get_table_data(data):
     data_key = data.keys()
     data_dict = {}
@@ -20,15 +34,13 @@ def get_table_data(data):
         rev_val = data.get(key)
         data_dict[key] = rev_val[::-1]
     return data_dict
-        
-    
-    
-data = fetch_data()
-table_data = get_table_data(data)
 
-door_open_height = data.get('Door Height(%)')
-timestamp = data.get('Date Time')
-fig = go.Figure(data=go.Scatter(y=door_open_height, x=timestamp)).update_layout(title="Door Open Height vs Time", yaxis_title="Door Open Height (%)")
+    
+page_0 ="""
+<|{dialog_is_visible}|dialog|title=Enter the Passcode|
+<|{passcode}|number|on_change=verify_passcode|>
+|>
+"""
 
 page_1 = """
 <|layout|columns=1 1 1|
@@ -40,7 +52,9 @@ page_1 = """
 <br/>
 |>
 # 
-<|chart|figure={fig}|>
+<|part|render={verified_user}
+<|chart|figure={chart_fig}|>
+|>
 """
 
 page_2 = """
@@ -86,11 +100,25 @@ page_3 = """
 |>
 """
 
-
+   
 # Global on_navigate
 def on_navigate(state, page_name):
-    page_refresh(state)
+    if verified_user:
+        page_refresh(state)
+        
     return page_name
+
+# Local on_change
+def verify_passcode(state, id):  
+    if state.passcode:
+        state.passcode = int(state.passcode)
+
+        if state.passcode == int(os.getenv('passcode')):
+            state.dialog_is_visible = False
+            state.verified_user = True
+            page_refresh(state)
+
+
 
 # Local on_change
 def validate_input(state, id):
@@ -126,7 +154,7 @@ def page_refresh(state):
     state.table_data = get_table_data(new_data)
     state.door_open_height = new_data.get('Door Height(%)')
     state.timestamp = new_data.get('Date Time')
-    state.fig = go.Figure(data=go.Scatter(y=state.door_open_height, x=state.timestamp)).update_layout(title="Door Open Height vs Time", yaxis_title="Door Open Height (%)")
+    state.chart_fig = go.Figure(data=go.Scatter(y=state.door_open_height, x=state.timestamp)).update_layout(title="Door Open Height vs Time", yaxis_title="Door Open Height (%)")
 
 
 # Local on_action
@@ -144,7 +172,6 @@ def execute(state, id):
             state.action_type = "OPEN"
         else:
             state.action_type = "NONE"
-            state.door_height = 0
             
         data = {"water_level": "-", "water_pressure": "-", "fo_height": "-", "fo_width": "-", "inflow_velocity": "-", "emergency_status": "-", "action_type": state.action_type, "door_open_height": state.door_height, "action_remark": "MANUAL", "timestamp": datetime.now().strftime("%d:%m:%Y %H:%M:%S")}
         print(f"[{timestamp}] Identity: Taipy | Door Height Set To: {state.door_height} |")
@@ -156,9 +183,12 @@ def execute(state, id):
     
     
 pages = {
+    "/" : page_0,
     "CHART" : page_1,
     "TABLE" : page_2,
     "CONTROL" : page_3
 }    
-        
+
+# Load env vars
+load_dotenv()        
 Gui(pages=pages).run(use_reloader=True, debug=False, port=3000)
