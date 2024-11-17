@@ -119,7 +119,6 @@ def verify_passcode(state, id):
             page_refresh(state)
 
 
-
 # Local on_change
 def validate_input(state, id):
     input_door_height = str(state.door_height)
@@ -154,7 +153,17 @@ def page_refresh(state):
     state.table_data = get_table_data(new_data)
     state.door_open_height = new_data.get('Door Height(%)')
     state.timestamp = new_data.get('Date Time')
-    state.chart_fig = go.Figure(data=go.Scatter(y=state.door_open_height, x=state.timestamp)).update_layout(title="Door Open Height vs Time", yaxis_title="Door Open Height (%)")
+    state.chart_fig = go.Figure(
+        data=go.Scatter(
+            y=state.door_open_height, 
+            x=state.timestamp, 
+            mode='lines', 
+            line_shape='hv'
+        )
+    ).update_layout(
+        title="Door Open Height vs Time", 
+        yaxis_title="Door Open Height (%)"
+    )
 
 
 # Local on_action
